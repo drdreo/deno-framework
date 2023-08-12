@@ -1,36 +1,35 @@
-import {DiscoveryService} from "./discovery/discovery-service.ts";
+import { Application } from "../deps.ts";
+import { DiscoveryService } from "./discovery/discovery-service.ts";
+import { Logger } from "./utils/logger/logger.service.ts";
 
-/**
- * JSDoc for this function
- * @return {string}
- */
 export function nests() {
-  return "nests";
+	return "nests";
 }
-
-
-import {Application} from "../deps.ts";
 
 interface CreateAppOptions {
-  port: number;
-  logger?: false | string[]; // TODO: type log levels
+	logger?: false | string[]; // TODO: type log levels
 }
 
-const discover = new DiscoveryService();
+/**
+ * Create <nests> application
+ * @return {void}
+ */
+export async function createApp(
+	options: CreateAppOptions,
+): Promise<Application> {
+	const discover = new DiscoveryService();
 
-export async function createApp(options: CreateAppOptions) {
-  // TODO: merge options with default values
+	// TODO: merge options with default values
 
-  const app = new Application();
+	const app = new Application();
 
-  await discover.discover(app);
+	await discover.discover(app);
+	Logger.log("Discovery done.");
 
-  const port = options.port;
-  console.log(`[NESTS] listening at port ${port}`);
-  await app.listen({port: port});
+	return app;
 }
 
-
-export {Controller} from "./decorators/controller.ts";
+export { Application, Logger };
+export { Controller } from "./decorators/controller.ts";
 //export {Validate} from "./decorators/Validate.ts";
-export {Get, Post, Put, Patch, Delete} from "./decorators/method.ts";
+export { Delete, Get, Patch, Post, Put } from "./decorators/method.ts";

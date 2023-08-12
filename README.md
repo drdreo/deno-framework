@@ -11,7 +11,7 @@ Deno material:
 Inspiration:
 - https://docs.nestjs.com/controllers#controllers
 - https://github.com/SampaioLeal/destjs
--
+- https://deno.land/x/oak@v12.6.0
 
 ## Generate code
 

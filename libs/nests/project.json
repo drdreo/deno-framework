@@ -1,26 +1,25 @@
 {
-  "name": "nests",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/nests",
-  "projectType": "library",
-  "targets": {
-    "test": {
-      "executor": "@nx/deno:test",
-      "outputs": [
-        "coverage/libs/nests"
-      ],
-      "options": {
-        "coverageDirectory": "coverage/libs/nests",
-        "denoConfig": "libs/nests/deno.json",
-        "check": "local"
-      }
-    },
-    "lint": {
-      "executor": "@nx/deno:lint",
-      "options": {
-        "denoConfig": "libs/nests/deno.json"
-      }
-    }
-  },
-  "tags": []
+	"name": "nests",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/nests",
+	"projectType": "library",
+	"targets": {
+		"test": {
+			"executor": "@nx/deno:test",
+			"outputs": [
+				"coverage/libs/nests"
+			],
+			"options": {
+				"denoConfig": "libs/nests/deno.json",
+				"check": "local"
+			}
+		},
+		"lint": {
+			"executor": "@nx/deno:lint",
+			"options": {
+				"denoConfig": "libs/nests/deno.json"
+			}
+		}
+	},
+	"tags": []
 }

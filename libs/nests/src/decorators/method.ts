@@ -1,14 +1,15 @@
-import {Reflect} from "../../deps.ts";
-import {HttpMethod} from "../../types.ts";
+import { Reflect } from "../../deps.ts";
+import { HttpMethod } from "../../types.ts";
 
-function createMappingDecorator(method: HttpMethod) {
-  return (endpoint: string): MethodDecorator => {
-    return (_target, _propertyKey, descriptor) => {
-      Reflect.defineMetadata("endpoint", endpoint, descriptor.value);
-      Reflect.defineMetadata("method", method, descriptor.value);
-      return descriptor;
-    };
-  };
+type EndpointMethodDecorator = (endpoint: string) => MethodDecorator;
+
+function createMappingDecorator(method: HttpMethod): EndpointMethodDecorator {
+	return (endpoint: string): MethodDecorator =>
+	(_target, _propertyKey, descriptor) => {
+		Reflect.defineMetadata("endpoint", endpoint, descriptor.value);
+		Reflect.defineMetadata("method", method, descriptor.value);
+		return descriptor;
+	};
 }
 
 export const Get = createMappingDecorator("GET");

@@ -1,13 +1,17 @@
 {
-  "name": "@deno-framework/source",
-  "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {},
-  "private": true,
-  "devDependencies": {
-    "@nx/deno": "^16.4.0",
-    "@nx/workspace": "16.6.0",
-    "nx": "16.6.0",
-    "nx-cloud": "latest"
-  }
+	"name": "@deno-framework",
+	"version": "0.0.1",
+	"description": "A simple, yet effective Deno web framework",
+	"license": "MIT",
+	"scripts": {},
+	"author": "Andreas Hahn",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/drdreo/deno-framework"
+	},
+	"devDependencies": {
+		"@nx/deno": "^16.4.0",
+		"@nx/workspace": "16.6.0",
+		"nx": "16.6.0"
+	}
 }
