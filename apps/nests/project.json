@@ -1,0 +1,43 @@
+{
+  "name": "nests",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/nests/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/deno:emit",
+      "outputs": [
+        "dist/apps/nests"
+      ],
+      "options": {
+        "main": "apps/nests/src/main.ts",
+        "outputFile": "dist/apps/nests/main.js",
+        "denoConfig": "apps/nests/deno.json"
+      }
+    },
+    "serve": {
+      "executor": "@nx/deno:run",
+      "options": {
+        "buildTarget": "nests:build",
+        "watch": true
+      }
+    },
+    "test": {
+      "executor": "@nx/deno:test",
+      "outputs": [
+        "coverage/apps/nests"
+      ],
+      "options": {
+        "coverageDirectory": "coverage/apps/nests",
+        "denoConfig": "apps/nests/deno.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/deno:lint",
+      "options": {
+        "denoConfig": "apps/nests/deno.json"
+      }
+    }
+  },
+  "tags": []
+}
