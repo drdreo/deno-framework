@@ -1,6 +1,7 @@
 {
   "deno.enablePaths": [
-    "apps/nests"
+    "apps/nests",
+    "libs/nests"
   ],
   "deno.unstable": true,
   "deno.importMap": "./import_map.json"

@@ -1,41 +1,41 @@
 {
-  "name": "nests",
+  "name": "nests-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "apps/nests/src",
+  "sourceRoot": "apps/nests-app/src",
   "targets": {
     "build": {
       "executor": "@nx/deno:emit",
       "outputs": [
-        "dist/apps/nests"
+        "dist/apps/nests-app"
       ],
       "options": {
-        "main": "apps/nests/src/main.ts",
-        "outputFile": "dist/apps/nests/main.js",
-        "denoConfig": "apps/nests/deno.json"
+        "main": "apps/nests-app/src/main.ts",
+        "outputFile": "dist/apps/nests-app/main.js",
+        "denoConfig": "apps/nests-app/deno.json"
       }
     },
     "serve": {
       "executor": "@nx/deno:run",
       "options": {
-        "buildTarget": "nests:build",
+        "buildTarget": "nests-app:build",
         "watch": true
       }
     },
     "test": {
       "executor": "@nx/deno:test",
       "outputs": [
-        "coverage/apps/nests"
+        "coverage/apps/nests-app"
       ],
       "options": {
-        "coverageDirectory": "coverage/apps/nests",
-        "denoConfig": "apps/nests/deno.json"
+        "coverageDirectory": "coverage/apps/nests-app",
+        "denoConfig": "apps/nests-app/deno.json"
       }
     },
     "lint": {
       "executor": "@nx/deno:lint",
       "options": {
-        "denoConfig": "apps/nests/deno.json"
+        "denoConfig": "apps/nests-app/deno.json"
       }
     }
   },

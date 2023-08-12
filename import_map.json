@@ -1,3 +1,5 @@
 {
-  "imports": {}
+  "imports": {
+    "@deno-framework/nests": "./libs/nests/mod.ts"
+  }
 }
