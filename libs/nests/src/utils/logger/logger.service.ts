@@ -52,10 +52,8 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
  * @publicApi
  */
 export class Logger implements LoggerService {
-	protected static staticInstanceRef?: LoggerService = DEFAULT_LOGGER;
-	protected static logLevels?: LogLevel[];
-	private static isBufferAttached: boolean;
-
+    protected static logLevels?: LogLevel[];
+    protected static staticInstanceRef?: LoggerService = DEFAULT_LOGGER;
 	protected localInstanceRef?: LoggerService;
 
 	constructor(

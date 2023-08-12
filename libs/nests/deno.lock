@@ -1,6 +1,8 @@
 {
   "version": "2",
   "remote": {
+    "https://cdn.skypack.dev/-/sinon@v12.0.1-AQ1plUdfDlYb1W4tm4LN/dist=es2019,mode=imports/optimized/sinon.js": "df9391141f0f935121fb3fc768c880e3f0f211de63cfaf30261838d6cae417d5",
+    "https://cdn.skypack.dev/sinon@12.0.1?dts": "1532029a43d1a878864cd4ad322f0e5d3cf58a8ec57fd1e20e5bfac3fa1a4acb",
     "https://deno.land/std@0.105.0/_util/assert.ts": "2f868145a042a11d5ad0a3c748dcf580add8a0dbc0e876eaa0026303a5488f58",
     "https://deno.land/std@0.105.0/_util/has_own_property.ts": "f5edd94ed3f3c20c517d812045deb97977e18501c9b7105b5f5c11a31893d7a2",
     "https://deno.land/std@0.105.0/_util/os.ts": "dfb186cc4e968c770ab6cc3288bd65f4871be03b93beecae57d657232ecffcac",
@@ -75,6 +77,8 @@
     "https://deno.land/std@0.198.0/assert/unreachable.ts": "4600dc0baf7d9c15a7f7d234f00c23bca8f3eba8b140286aaca7aa998cf9a536",
     "https://deno.land/std@0.198.0/fmt/colors.ts": "a7eecffdf3d1d54db890723b303847b6e0a1ab4b528ba6958b8f2e754cf1b3bc",
     "https://deno.land/std@0.198.0/streams/write_all.ts": "aec90152978581ea62d56bb53a5cbf487e6a89c902f87c5969681ffbdf32b998",
+    "https://deno.land/std@0.198.0/testing/_test_suite.ts": "30f018feeb3835f12ab198d8a518f9089b1bcb2e8c838a8b615ab10d5005465c",
+    "https://deno.land/std@0.198.0/testing/bdd.ts": "3f446df5ef8e856a869e8eec54c8482590415741ff0b6358a00c43486cc15769",
     "https://deno.land/x/deno_class_validator@v1.0.0/mod.ts": "8950f261c03b03d1474eb7a092ca892fd7b11f84d8e1d9ff6facb7844d685779",
     "https://deno.land/x/deno_class_validator@v1.0.0/src/container.ts": "501cdb40089d6922233b6ceae076c04cad4fb41ea5ace1c0186be15dd43723ca",
     "https://deno.land/x/deno_class_validator@v1.0.0/src/decorator/ValidationOptions.ts": "72bc4154ba4a9b901fc32744330ac2c75b72e6e84fe975881787e487b1e397a2",

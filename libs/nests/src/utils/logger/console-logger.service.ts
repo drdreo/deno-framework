@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 
 import { writeAllSync } from "../../../deps.ts";
+import { getBytesFromString } from "../buffer.ts";
 import { clc, yellow } from "../color.ts";
 import { isFunction, isPlainObject, isString, isUndefined } from "../data.ts";
 import { LoggerService, LogLevel } from "./logger.service.ts";
@@ -191,8 +192,8 @@ export class ConsoleLogger implements LoggerService {
 				timestampDiff,
 			);
 
-			const contentBytes = new TextEncoder().encode(formattedMessage);
 			const writer = Deno[writeStreamType ?? "stdout"];
+            const contentBytes = getBytesFromString(formattedMessage);
 			writeAllSync(writer, contentBytes);
 		});
 	}
@@ -245,7 +246,8 @@ export class ConsoleLogger implements LoggerService {
 			return;
 		}
 
-		writeAllSync(Deno.stderr, new TextEncoder().encode(`${stack}\n`));
+        const contentBytes = getBytesFromString(`${stack}\n`);
+        writeAllSync(Deno.stderr, contentBytes);
 	}
 
 	protected updateAndGetTimestampDiff(): string {
