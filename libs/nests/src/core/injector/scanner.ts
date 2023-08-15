@@ -1,10 +1,11 @@
 import { Reflect } from "../../../deps.ts";
-import { MODULE_METADATA } from "../../domain/constants.ts";
+import { MODULE_METADATA, ROUTE_ARGS_METADATA } from "../../domain/constants.ts";
 import { Injectable, Provider } from "../../domain/provider.ts";
 import { Type } from "../../domain/type-helpers.ts";
-import { isNil } from "../../utils/data.ts";
+import { isFunction } from "../../utils/data.ts";
 import { Logger } from "../../utils/logger/logger.service.ts";
 import { AppContainer } from "./container.ts";
+import { MetadataScanner } from "./metadata-scanner.ts";
 
 // https://github.com/nestjs/nest/blob/master/packages/core/scanner.ts#L74
 export class Scanner {
@@ -12,36 +13,18 @@ export class Scanner {
 
 	constructor(
 		private readonly container: AppContainer,
-	) {
+        private readonly metadataScanner: MetadataScanner,
+    ) {
 	}
 
-	scan(entryModule: Type<any>) {
+    scan(entryModule: Type<any>) {
 		this.scanModuleForDependencies(entryModule);
 	}
 
 	private scanModuleForDependencies(module: Type<any>) {
 		this.logger.debug(`Scanning module ${module.name}`);
 		this.reflectProviders(module);
-
 	}
-
-	private reflectProviders(module: Type<any>) {
-		const providers = [
-			...this.reflectMetadata(MODULE_METADATA.PROVIDERS, module),
-		];
-		providers.forEach((provider) => {
-			this.logger.debug(`discovered provider ${provider.name}`);
-			this.insertProvider(provider);
-            this.reflectDynamicMetadata(provider);
-        });
-	}
-
-    public reflectDynamicMetadata(cls: Type<Injectable>, token: string) {
-        if (!cls || !cls.prototype) {
-            return;
-        }
-        this.reflectParamInjectables(cls, token, ROUTE_ARGS_METADATA);
-    }
 
     public reflectParamInjectables(
         component: Type<Injectable>,
@@ -58,7 +41,7 @@ export class Scanner {
                 {
                     index: number;
                     data: unknown;
-                    pipes: Array<Type<PipeTransform> | PipeTransform>;
+                    pipes: Array<Type<any>>;
                 }
             > = Reflect.getMetadata(metadataKey, component, methodKey);
 
@@ -72,29 +55,40 @@ export class Scanner {
                 .flat(1)
                 .forEach(injectable =>
                     this.insertInjectable(
-                        injectable,
-                        token,
-                        component,
-                        'pipe',
-                        methodKey,
+                        injectable
                     ),
                 );
         });
     }
 
-    public isCustomProvider(
-        provider: Provider,
-    ): provider is
-        | ClassProvider
-        | ValueProvider
-        | FactoryProvider
-        | ExistingProvider {
-        return provider && !isNil((provider as any).provide);
+    public reflectDynamicMetadata(cls: Type<Injectable>, token: string) {
+        if (!cls || !cls.prototype) {
+            return;
+        }
+        this.reflectParamInjectables(cls, token, ROUTE_ARGS_METADATA);
     }
+
+	private reflectProviders(module: Type<any>) {
+		const providers = [
+			...this.reflectMetadata(MODULE_METADATA.PROVIDERS, module),
+		];
+		providers.forEach((provider) => {
+			this.logger.debug(`discovered provider ${provider.name}`);
+			this.insertProvider(provider);
+            this.reflectDynamicMetadata(provider, provider);
+        });
+	}
 
 	private insertProvider(provider: Type<Provider>) {
         this.container.getAppModule().addProvider(provider);
 	}
+
+    private insertInjectable(injectable: Type<Injectable>) {
+        if (!isFunction(injectable)) {
+            throw new Error("Injectable is not a function");
+        }
+        this.container.getAppModule().addInjectable(injectable);
+    }
 
 	private reflectMetadata<T = any>(
 		metadataKey: string,

@@ -14,12 +14,12 @@ export class InstanceLoader {
     ) {
     }
 
-    public createInstancesOfDependencies() {
+    public async createInstancesOfDependencies() {
         const module = this.container.getAppModule();
         this.createPrototypes();
 
         try {
-            this.createInstances(module);
+            await this.createInstances(module);
         } catch (err) {
             throw err;
         }
@@ -33,11 +33,11 @@ export class InstanceLoader {
         // this.createPrototypesOfControllers(moduleRef);
     }
 
-    private createInstances(module: AppModule) {
+    private async createInstances(module: AppModule) {
         const providers = this.container.getProviders();
-        this.createInstancesOfProviders(providers, module);
+        await this.createInstancesOfProviders(providers, module);
         const injectables = this.container.getInjectables();
-        this.createInstancesOfInjectables(injectables);
+        await this.createInstancesOfInjectables(injectables, module);
         // await this.createInstancesOfControllers(moduleRef);
 
         const { name } = module;
@@ -51,13 +51,17 @@ export class InstanceLoader {
         providers.forEach((wrapper) => this.injector.loadPrototype<Injectable>(wrapper, providers));
     }
 
-    private createInstancesOfProviders(
+    private async createInstancesOfProviders(
         providers: Map<InjectionToken, ProviderWrapper>,
         moduleRef: AppModule,
     ) {
-        providers.forEach((provider) => {
-            this.injector.loadProvider(provider, moduleRef);
-        });
+        const wrappers = [ ...providers.values() ];
+
+        await Promise.all(
+            wrappers.map(async item => {
+                await this.injector.loadProvider(item, moduleRef);
+            }),
+        );
     }
 
     private createPrototypesOfInjectables(injectables: Map<InjectionToken, ProviderWrapper>) {
@@ -66,10 +70,13 @@ export class InstanceLoader {
         );
     }
 
-    private createInstancesOfInjectables(injectables: Map<InjectionToken, ProviderWrapper>, moduleRef: AppModule) {
-        injectables.forEach(injectable => {
-            this.injector.loadInjectable(injectable, moduleRef);
-        });
+    private async createInstancesOfInjectables(injectables: Map<InjectionToken, ProviderWrapper>, moduleRef: AppModule) {
+        const wrappers = [...injectables.values()];
+        await Promise.all(
+            wrappers.map(async item => {
+                await this.injector.loadInjectable(item, moduleRef);
+            }),
+        );
     }
 
     // private createPrototypesOfControllers(moduleRef: Module) {

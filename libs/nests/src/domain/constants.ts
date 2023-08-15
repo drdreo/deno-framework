@@ -16,3 +16,5 @@ export const PROPERTY_DEPS_METADATA = "self:properties_metadata";
 export const OPTIONAL_DEPS_METADATA = "optional:paramtypes";
 export const OPTIONAL_PROPERTY_DEPS_METADATA = "optional:properties_metadata";
 export const INJECTABLE_WATERMARK = "__injectable__";
+export const ROUTE_ARGS_METADATA = '__routeArguments__';
+export const CUSTOM_ROUTE_ARGS_METADATA = '__customRouteArgs__';

@@ -15,6 +15,7 @@ import { Logger } from "../../utils/logger/logger.service.ts";
 import { AppModule } from "./app-module.ts";
 import { AppContainer } from "./container.ts";
 import { ProviderWrapper } from "./provider-wrapper.ts";
+import { SettlementSignal } from "./settlement-signal.ts";
 
 const debug = true;
 /**
@@ -84,12 +85,29 @@ export class Injector {
         }
     }
 
-    public loadInstance<T>(
+    public async loadInstance<T>(
         wrapper: ProviderWrapper<T>,
         collection: Map<InjectionToken, ProviderWrapper>,
         moduleRef: AppModule,
+        inquirer?: ProviderWrapper,
     ) {
+        if (wrapper.isPending) {
+            const settlementSignal = wrapper.settlementSignal;
+            if (inquirer && settlementSignal?.isCycle(inquirer.id)) {
+                throw new Error(`"CircularDependencyException - ${ wrapper.name }"`);
+            }
+
+            return wrapper.donePromise!.then((err?: unknown) => {
+                this.logger.log('settled', err);
+                if (err) {
+                    throw err;
+                }
+            });
+        }
+
+        const settlementSignal = this.applySettlementSignal(wrapper, wrapper);
         const token = wrapper.token || wrapper.name;
+
         const targetWrapper = collection.get(token!);
         if (isUndefined(targetWrapper)) {
             throw new Error(
@@ -97,69 +115,101 @@ export class Injector {
             );
         }
         if (targetWrapper.isResolved) {
-            return;
+            return settlementSignal.complete();
         }
-        const t0 = this.getNowTimestamp();
-        const callback = (instances: unknown[]) => {
-            const properties = this.resolveProperties(
+        try {
+            const t0 = this.getNowTimestamp();
+            const callback = async (instances: unknown[]) => {
+                const properties = await this.resolveProperties(
+                    wrapper,
+                    moduleRef,
+                    wrapper,
+                    inquirer,
+                );
+                const instance = this.instantiateClass(
+                    instances,
+                    wrapper,
+                    targetWrapper,
+                );
+                this.applyProperties(instance, properties);
+                wrapper.initTime = this.getNowTimestamp() - t0;
+                settlementSignal.complete();
+            };
+            await this.resolveConstructorParams<T>(
                 wrapper,
                 moduleRef,
-            );
-            const instance = this.instantiateClass(
-                instances,
+                callback,
                 wrapper,
-                targetWrapper,
+                inquirer,
             );
-            this.applyProperties(instance, properties);
-            wrapper.initTime = this.getNowTimestamp() - t0;
-        };
-        this.resolveConstructorParams<T>(
-            wrapper,
-            moduleRef,
-            callback,
-        );
+        } catch (err) {
+            settlementSignal.error(err);
+            throw err;
+        }
     }
 
-    public loadInjectable<T = any>(
+    public async loadInjectable<T = any>(
         wrapper: ProviderWrapper<T>,
         moduleRef: AppModule,
+        inquirer?: ProviderWrapper,
     ) {
         const injectables = this.container.getInjectables();
-        this.loadInstance(
+        await this.loadInstance<T>(
             wrapper,
             injectables,
             moduleRef,
+            inquirer,
         );
     }
 
-    public loadProvider(
+    public async loadProvider(
         wrapper: ProviderWrapper<Injectable>,
         moduleRef: AppModule,
+        inquirer?: ProviderWrapper,
     ) {
         const providers = this.container.getProviders();
-        this.loadInstance(
+        await this.loadInstance(
             wrapper,
             providers,
             moduleRef,
+            inquirer,
         );
     }
 
-    public resolveConstructorParams<T>(
+    public applySettlementSignal<T>(
+        instancePerContext: ProviderWrapper<T>,
+        host: ProviderWrapper<T>,
+    ) {
+        const settlementSignal = new SettlementSignal();
+        instancePerContext.donePromise = settlementSignal.asPromise();
+        instancePerContext.isPending = true;
+        host.settlementSignal = settlementSignal;
+
+        return settlementSignal;
+    }
+
+    public async resolveConstructorParams<T>(
         wrapper: ProviderWrapper<T>,
         moduleRef: AppModule,
         callback: (args: unknown[]) => void,
+        inquirer?: ProviderWrapper,
+        parentInquirer?: ProviderWrapper,
     ) {
         const [ dependencies, optionalDependenciesIds ] = this.getClassDependencies(wrapper);
 
         let isResolved = true;
-        const resolveParam = (param: unknown, index: number) => {
+        const resolveParam = async (param: unknown, index: number) => {
             try {
-                const paramWrapper = this.resolveSingleParam<T>(
+                if (this.isInquirer(param, parentInquirer)) {
+                    return parentInquirer && parentInquirer.instance;
+                }
+                const paramWrapper = await this.resolveSingleParam<T>(
                     wrapper,
                     param,
                     { index, dependencies },
                     moduleRef,
                     index,
+                    inquirer,
                 );
 
                 if (!paramWrapper.isResolved) {
@@ -174,8 +224,8 @@ export class Injector {
                 return undefined;
             }
         };
-        const instances = dependencies.map(resolveParam);
-        isResolved && (callback(instances));
+        const instances = await Promise.all(dependencies.map(resolveParam));
+        isResolved && (await callback(instances));
     }
 
     public getClassDependencies<T>(
@@ -206,12 +256,13 @@ export class Injector {
         return Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, type) || [];
     }
 
-    public resolveSingleParam<T>(
+    public async resolveSingleParam<T>(
         wrapper: ProviderWrapper<T>,
         param: Type<any> | string | symbol | any,
         dependencyContext: InjectorDependencyContext,
         moduleRef: AppModule,
         keyOrIndex: symbol | string | number,
+        inquirer?: ProviderWrapper,
     ) {
         if (isUndefined(param)) {
             this.logger.log(
@@ -226,6 +277,7 @@ export class Injector {
             dependencyContext,
             wrapper,
             keyOrIndex,
+            inquirer,
         );
     }
 
@@ -236,51 +288,57 @@ export class Injector {
         return param;
     }
 
-    public resolveComponentInstance<T>(
+    public async resolveComponentInstance<T>(
         moduleRef: AppModule,
         token: InjectionToken,
         dependencyContext: InjectorDependencyContext,
         wrapper: ProviderWrapper<T>,
         keyOrIndex: symbol | string | number,
-    ): ProviderWrapper {
+        inquirer?: ProviderWrapper,
+    ): Promise<ProviderWrapper> {
         this.printResolvingDependenciesLog(token);
         this.printLookingForProviderLog(token, moduleRef);
         const providers = this.container.getProviders();
-        const instanceWrapper = this.lookupComponent(
+        const instanceWrapper = await this.lookupComponent(
             providers,
             moduleRef,
             { ...dependencyContext, name: token },
             wrapper,
             keyOrIndex,
+            inquirer,
         );
 
         return this.resolveComponentHost(
             moduleRef,
             instanceWrapper,
+            inquirer
         );
     }
 
-    public resolveComponentHost<T>(
+    public async resolveComponentHost<T>(
         moduleRef: AppModule,
         instanceWrapper: ProviderWrapper<T>,
-    ): ProviderWrapper {
+        inquirer?: ProviderWrapper
+    ): Promise<ProviderWrapper> {
         if (!instanceWrapper.isResolved) {
-            this.loadProvider(
+            await this.loadProvider(
                 instanceWrapper,
                 moduleRef,
+                inquirer,
             );
         }
 
         return instanceWrapper;
     }
 
-    public lookupComponent<T = any>(
+    public async lookupComponent<T = any>(
         providers: Map<Function | string | symbol, ProviderWrapper>,
         moduleRef: AppModule,
         dependencyContext: InjectorDependencyContext,
         wrapper: ProviderWrapper<T>,
         keyOrIndex: symbol | string | number,
-    ): ProviderWrapper<T> {
+        inquirer?: ProviderWrapper,
+    ): Promise<ProviderWrapper<T>> {
         const token = wrapper.token || wrapper.name;
         const { name } = dependencyContext;
         if (wrapper && token === name) {
@@ -304,25 +362,32 @@ export class Injector {
         );
     }
 
-    public resolveProperties<T>(
+    public async resolveProperties<T>(
         wrapper: ProviderWrapper<T>,
         moduleRef: AppModule,
-    ): PropertyDependency[] {
+        inquirer?: ProviderWrapper,
+        parentInquirer?: ProviderWrapper
+    ): Promise<PropertyDependency[]> {
         const properties = this.reflectProperties(
             wrapper.metatype as Type<any>,
         );
-        const instances = properties.map((item: PropertyDependency) => {
+        const instances = await Promise.all(
+            properties.map(async (item: PropertyDependency) => {
             try {
                 const dependencyContext = {
                     key: item.key,
                     name: item.name,
                 };
-                const paramWrapper = this.resolveSingleParam<T>(
+                if (this.isInquirer(item.name, parentInquirer)) {
+                    return parentInquirer && parentInquirer.instance;
+                }
+                const paramWrapper = await this.resolveSingleParam<T>(
                     wrapper,
                     item.name,
                     dependencyContext,
                     moduleRef,
                     item.key,
+                    inquirer,
                 );
                 if (!paramWrapper) {
                     return undefined;
@@ -334,7 +399,7 @@ export class Injector {
                 }
                 return undefined;
             }
-        });
+            }));
         return properties.map((item: PropertyDependency, index: number) => ({
             ...item,
             instance: instances[index],
@@ -372,7 +437,7 @@ export class Injector {
         instances: any[],
         wrapper: ProviderWrapper,
         targetMetatype: ProviderWrapper,
-    ): T {
+    ): Promise<T> {
         const { metatype, name } = wrapper;
         this.logger.debug(`instantiating ${ name!.toString() }`);
 
@@ -465,4 +530,12 @@ export class Injector {
     private getNowTimestamp() {
         return performance.now();
     }
+
+    private isInquirer(
+        param: unknown,
+        parentInquirer: ProviderWrapper | undefined,
+    ) {
+        return param === 'INQUIRER' && parentInquirer;
+    }
+
 }

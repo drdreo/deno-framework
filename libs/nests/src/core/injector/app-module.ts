@@ -32,7 +32,7 @@ export class AppModule {
 		return AppModule.name;
 	}
 
-	public addProvider(provider: Provider): Provider | InjectionToken {
+	public addProvider(provider: Provider) {
 		if (this.isCustomProvider(provider)) {
 			return this.addCustomProvider(provider);
 		}
@@ -47,8 +47,6 @@ export class AppModule {
 				isResolved: false,
 			}),
 		);
-
-		return provider as Type<Injectable>;
 	}
 
 	public isCustomProvider(provider: Provider): provider is
@@ -94,14 +92,30 @@ export class AppModule {
 			providerToken,
 			new ProviderWrapper({
 				token: providerToken,
-				name: (providerToken as Function)?.name ||
-					providerToken.toString(),
+				name: (providerToken as Function)?.name || providerToken.toString(),
 				metatype: undefined,
 				instance: value,
 				isResolved: true,
 			}),
 		);
 	}
+
+    public addInjectable(injectable: Provider) {
+        if (this.isCustomProvider(injectable)) {
+            return ;
+        }
+
+        this.container.addInjectable(
+            injectable,
+            new ProviderWrapper({
+                token: injectable,
+                name: (injectable as Type<Injectable>).name,
+                metatype: injectable as Type<Injectable>,
+                instance: undefined,
+                isResolved: false,
+            }),
+        );
+    }
 
 	private generateModuleUuid(): string {
 		const prefix = "M_";

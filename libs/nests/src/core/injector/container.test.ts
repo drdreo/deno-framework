@@ -1,4 +1,5 @@
 import { assertEquals, assertExists, beforeEach, describe, it } from "../../../dev_deps.ts";
+import { Inject } from "../../decorators/core/inject.decorator.ts";
 import { Injectable } from "../../decorators/core/injectable.decorator.ts";
 import { Module } from "../../decorators/core/module.decorator.ts";
 import { AppContainer } from "./container.ts";
@@ -11,6 +12,9 @@ class TestFoodService {
         cakes: 123,
         crisps: false
     };
+
+    constructor() {
+    }
 }
 
 @Injectable()
@@ -22,17 +26,18 @@ class TestDogService {
 describe("[DI] Container", () => {
     let container: AppContainer;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         @Module({
             providers: [
                 TestDogService,
                 TestFoodService,
+                {provide: 'TEST', useValue: 666}
             ],
         })
         class TestModule {
         }
 
-        container = NestsFactory.create(TestModule);
+        container = await NestsFactory.create(TestModule);
     });
 
     it("should create", () => {

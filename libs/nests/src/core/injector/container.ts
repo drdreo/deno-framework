@@ -29,9 +29,14 @@ export class AppContainer {
 		this.providers.set(token, provider);
 	}
 
+    addInjectable(token: InjectionToken, provider: ProviderWrapper) {
+        this.injectables.set(token, provider);
+    }
+
 	reset() {
 		this.logger.verbose("resetting app container");
 		this.providers.clear();
+		this.injectables.clear();
 	}
 
 	setAppModule(appModule: AppModule) {

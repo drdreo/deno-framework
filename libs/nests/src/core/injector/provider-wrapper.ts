@@ -2,6 +2,7 @@ import { InjectionToken } from "../../domain/provider.ts";
 import { Type } from "../../domain/type-helpers.ts";
 import { Logger } from "../../utils/logger/logger.service.ts";
 import { UuidFactory } from "../../utils/uuid-factory.ts";
+import { SettlementSignal } from "./settlement-signal.ts";
 
 export const INSTANCE_METADATA_SYMBOL = Symbol.for("instance_metadata:cache");
 export const INSTANCE_ID_SYMBOL = Symbol.for("instance_metadata:id");
@@ -24,8 +25,11 @@ export class ProviderWrapper<T = any> {
     // TODO: create per context
     instance?: T;
     isResolved?: boolean;
+    isPending?: boolean;
+    donePromise?: Promise<unknown>;
 
     initTime?: number; // time it took to load the instance
+    settlementSignal?: SettlementSignal;
 
     private logger = new Logger(ProviderWrapper.name);
     private [INSTANCE_METADATA_SYMBOL]: ProviderMetadataStore = {};
@@ -72,11 +76,12 @@ export class ProviderWrapper<T = any> {
     }
 
     private initialize(metadata: Partial<ProviderWrapper<T>>) {
-        const { instance, isResolved, token, ...wrapperPartial } = metadata;
+        const { instance, isResolved, isPending, ...wrapperPartial } = metadata;
         Object.assign(this, wrapperPartial);
 
         this.instance = instance;
         this.isResolved = isResolved;
+        this.isPending = isPending;
     }
 
     private generateUuid(): string {
