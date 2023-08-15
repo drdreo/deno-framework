@@ -1,6 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
 import { Application, Reflect, Router, toFileUrl } from "../../deps.ts";
+import { CONTROLLER_METADATA } from "../domain/constants.ts";
 import { handleRoute } from "../handler/route.ts";
+import { isConstructor } from "../utils/data.ts";
 import { Logger } from "../utils/logger/logger.service.ts";
 
 const cwd = Deno.cwd();
@@ -42,18 +44,23 @@ export class DiscoveryService {
 	}
 
 	private registerController(Controller: any) {
-		const basePath = Reflect.getMetadata("endpoint", Controller);
+		const basePath = Reflect.getMetadata(
+			CONTROLLER_METADATA.ENDPOINT,
+			Controller,
+		);
 		const methods = Object.getOwnPropertyNames(Controller.prototype);
 
 		methods.forEach((methodName) => {
-			if (methodName === "constructor") return;
+			if (isConstructor(methodName)) {
+				return;
+			}
 
 			const endpoint = Reflect.getMetadata(
-				"endpoint",
+				CONTROLLER_METADATA.ENDPOINT,
 				Controller.prototype[methodName],
 			) as string;
 			const httpMethod = Reflect.getMetadata(
-				"method",
+				CONTROLLER_METADATA.METHOD,
 				Controller.prototype[methodName],
 			) as string;
 			const middleware = Controller.prototype[methodName];

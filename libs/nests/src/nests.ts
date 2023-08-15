@@ -1,4 +1,4 @@
-import { Application } from "../deps.ts";
+import { Application, Context } from "../deps.ts";
 import { DiscoveryService } from "./discovery/discovery-service.ts";
 import { Logger } from "./utils/logger/logger.service.ts";
 
@@ -15,12 +15,11 @@ interface CreateAppOptions {
  * @return {void}
  */
 export async function createApp(
-	options: CreateAppOptions,
+	options?: CreateAppOptions,
 ): Promise<Application> {
 	const discover = new DiscoveryService();
 
 	// TODO: merge options with default values
-
 	const app = new Application();
 
 	await discover.discover(app);
@@ -33,3 +32,4 @@ export { Application, Logger };
 export { Controller } from "./decorators/controller.ts";
 //export {Validate} from "./decorators/Validate.ts";
 export { Delete, Get, Patch, Post, Put } from "./decorators/method.ts";
+export type HttpContext = Context;

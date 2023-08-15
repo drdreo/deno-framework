@@ -193,7 +193,7 @@ export class ConsoleLogger implements LoggerService {
 			);
 
 			const writer = Deno[writeStreamType ?? "stdout"];
-            const contentBytes = getBytesFromString(formattedMessage);
+			const contentBytes = getBytesFromString(formattedMessage);
 			writeAllSync(writer, contentBytes);
 		});
 	}
@@ -228,8 +228,7 @@ export class ConsoleLogger implements LoggerService {
 			? `${this.colorize("Object:", logLevel)}\n${
 				JSON.stringify(
 					message,
-					(key, value) =>
-						typeof value === "bigint" ? value.toString() : value,
+					(key, value) => typeof value === "bigint" ? value.toString() : value,
 					2,
 				)
 			}\n`
@@ -246,8 +245,8 @@ export class ConsoleLogger implements LoggerService {
 			return;
 		}
 
-        const contentBytes = getBytesFromString(`${stack}\n`);
-        writeAllSync(Deno.stderr, contentBytes);
+		const contentBytes = getBytesFromString(`${stack}\n`);
+		writeAllSync(Deno.stderr, contentBytes);
 	}
 
 	protected updateAndGetTimestampDiff(): string {

@@ -52,8 +52,8 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
  * @publicApi
  */
 export class Logger implements LoggerService {
-    protected static logLevels?: LogLevel[];
-    protected static staticInstanceRef?: LoggerService = DEFAULT_LOGGER;
+	protected static logLevels?: LogLevel[];
+	protected static staticInstanceRef?: LoggerService = DEFAULT_LOGGER;
 	protected localInstanceRef?: LoggerService;
 
 	constructor(
@@ -188,9 +188,7 @@ export class Logger implements LoggerService {
 	log(message: any, ...optionalParams: [...any, string?]): void;
 
 	log(message: any, ...optionalParams: any[]) {
-		optionalParams = this.context
-			? optionalParams.concat(this.context)
-			: optionalParams;
+		optionalParams = this.context ? optionalParams.concat(this.context) : optionalParams;
 		this.localInstance?.log(message, ...optionalParams);
 	}
 
@@ -202,9 +200,7 @@ export class Logger implements LoggerService {
 	warn(message: any, ...optionalParams: [...any, string?]): void;
 
 	warn(message: any, ...optionalParams: any[]) {
-		optionalParams = this.context
-			? optionalParams.concat(this.context)
-			: optionalParams;
+		optionalParams = this.context ? optionalParams.concat(this.context) : optionalParams;
 		this.localInstance?.warn(message, ...optionalParams);
 	}
 
@@ -216,9 +212,7 @@ export class Logger implements LoggerService {
 	debug(message: any, ...optionalParams: [...any, string?]): void;
 
 	debug(message: any, ...optionalParams: any[]) {
-		optionalParams = this.context
-			? optionalParams.concat(this.context)
-			: optionalParams;
+		optionalParams = this.context ? optionalParams.concat(this.context) : optionalParams;
 		this.localInstance?.debug?.(message, ...optionalParams);
 	}
 
@@ -230,9 +224,7 @@ export class Logger implements LoggerService {
 	verbose(message: any, ...optionalParams: [...any, string?]): void;
 
 	verbose(message: any, ...optionalParams: any[]) {
-		optionalParams = this.context
-			? optionalParams.concat(this.context)
-			: optionalParams;
+		optionalParams = this.context ? optionalParams.concat(this.context) : optionalParams;
 		this.localInstance?.verbose?.(message, ...optionalParams);
 	}
 

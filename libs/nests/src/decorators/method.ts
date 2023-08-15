@@ -4,8 +4,7 @@ import { HttpMethod } from "../../types.ts";
 type EndpointMethodDecorator = (endpoint: string) => MethodDecorator;
 
 function createMappingDecorator(method: HttpMethod): EndpointMethodDecorator {
-	return (endpoint: string): MethodDecorator =>
-	(_target, _propertyKey, descriptor) => {
+	return (endpoint: string): MethodDecorator => (_target, _propertyKey, descriptor) => {
 		Reflect.defineMetadata("endpoint", endpoint, descriptor.value);
 		Reflect.defineMetadata("method", method, descriptor.value);
 		return descriptor;
