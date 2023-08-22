@@ -8,8 +8,8 @@ import { AppContainer } from "./container.ts";
 import { MetadataScanner } from "./metadata-scanner.ts";
 
 // https://github.com/nestjs/nest/blob/master/packages/core/scanner.ts#L74
-export class Scanner {
-	private logger = new Logger(Scanner.name);
+export class DependenciesScanner {
+	private logger = new Logger(DependenciesScanner.name);
 
 	constructor(
 		private readonly container: AppContainer,
@@ -65,6 +65,7 @@ export class Scanner {
         if (!cls || !cls.prototype) {
             return;
         }
+
         this.reflectParamInjectables(cls, token, ROUTE_ARGS_METADATA);
     }
 
@@ -73,7 +74,7 @@ export class Scanner {
 			...this.reflectMetadata(MODULE_METADATA.PROVIDERS, module),
 		];
 		providers.forEach((provider) => {
-			this.logger.debug(`discovered provider ${provider.name}`);
+			this.logger.debug(`discovered provider ${provider.name ?? provider.provide}`);
 			this.insertProvider(provider);
             this.reflectDynamicMetadata(provider, provider);
         });

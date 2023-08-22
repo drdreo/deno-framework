@@ -1,5 +1,4 @@
 import { assertEquals, assertExists, beforeEach, describe, it } from "../../../dev_deps.ts";
-import { Inject } from "../../decorators/core/inject.decorator.ts";
 import { Injectable } from "../../decorators/core/injectable.decorator.ts";
 import { Module } from "../../decorators/core/module.decorator.ts";
 import { AppContainer } from "./container.ts";
@@ -46,7 +45,7 @@ describe("[DI] Container", () => {
 
     it("should setup providers", () => {
         const providers = container.getProviders();
-        assertEquals(providers.size, 2);
+        assertEquals(providers.size, 3);
     });
 
     it("should instantiate provider dependencies", () => {

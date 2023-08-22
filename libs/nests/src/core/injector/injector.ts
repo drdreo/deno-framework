@@ -98,7 +98,6 @@ export class Injector {
             }
 
             return wrapper.donePromise!.then((err?: unknown) => {
-                this.logger.log('settled', err);
                 if (err) {
                     throw err;
                 }
@@ -239,13 +238,13 @@ export class Injector {
     }
 
     public reflectConstructorParams<T>(type: Type<T>): any[] {
-        const paramtypes = [
+        const paramTypes = [
             ...(Reflect.getMetadata(PARAMTYPES_METADATA, type) || []),
         ];
         const selfParams = this.reflectSelfParams<T>(type);
 
-        selfParams.forEach(({ index, param }) => (paramtypes[index] = param));
-        return paramtypes;
+        selfParams.forEach(({ index, param }) => (paramTypes[index] = param));
+        return paramTypes;
     }
 
     public reflectOptionalParams<T>(type: Type<T>): any[] {
@@ -296,7 +295,7 @@ export class Injector {
         keyOrIndex: symbol | string | number,
         inquirer?: ProviderWrapper,
     ): Promise<ProviderWrapper> {
-        this.printResolvingDependenciesLog(token);
+        this.printResolvingDependenciesLog(token, inquirer);
         this.printLookingForProviderLog(token, moduleRef);
         const providers = this.container.getProviders();
         const instanceWrapper = await this.lookupComponent(
@@ -478,8 +477,8 @@ export class Injector {
             clc.cyanBright(
                 tokenName,
             )
-        }${ clc.green(" in the ") }${ clc.yellow(dependentName) }${
-            clc.green(
+        }${ clc.blue(" in the ") }${ clc.yellow(dependentName) }${
+            clc.blue(
                 ` provider ${ isAlias ? "(alias)" : "" }`,
             )
         }`;
@@ -498,7 +497,7 @@ export class Injector {
         const moduleRefName = moduleRef?.name ?? "unknown";
         this.logger.log(
             `Looking for ${ clc.cyanBright(tokenName) }${
-                clc.green(
+                clc.blue(
                     " in ",
                 )
             }${ clc.magentaBright(moduleRefName) }`,

@@ -5,7 +5,7 @@ import { AppContainer } from "./container.ts";
 import { Injector } from "./injector.ts";
 import { InstanceLoader } from "./instance-loader.ts";
 import { MetadataScanner } from "./metadata-scanner.ts";
-import { Scanner } from "./scanner.ts";
+import { DependenciesScanner } from "./scanner.ts";
 
 // https://github.com/nestjs/nest/blob/85cc3869ee2a38f57075d59ac642eddf259ab016/packages/core/nest-factory.ts#L33
 export class NestsFactory {
@@ -34,7 +34,7 @@ export class NestsFactory {
 		const instanceLoader = new InstanceLoader(container, injector);
 
         const metadataScanner = new MetadataScanner();
-		const scanner = new Scanner(container, metadataScanner);
+		const scanner = new DependenciesScanner(container, metadataScanner);
 
 		try {
 			scanner.scan(entryModule);

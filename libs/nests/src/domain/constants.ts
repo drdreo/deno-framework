@@ -2,13 +2,16 @@ export const MODULE_METADATA = {
 	PROVIDERS: "providers",
 };
 
+
 export const CONTROLLER_METADATA = {
-	PATH: "path",
-	METHOD: "method",
-	ENDPOINT: "endpoint",
+    PATH: "path",
+    METHOD: "method",
+    ENDPOINT: "endpoint",
 };
 
-// DECORATOR META KEYS
+/*
+    DECORATORS META KEYS
+ */
 export const PARAMTYPES_METADATA = 'design:paramtypes';
 export const TYPE_METADATA = "design:type";
 export const SELF_DECLARED_DEPS_METADATA = "self:paramtypes";
