@@ -1,6 +1,6 @@
-import { Callback, HttpContext } from "../../types.ts";
+import { Callback, HttpContext } from "../../domain/router.ts";
 
-export function handleRoute(callback: Callback) {
+export function handleRequest(callback: Callback) {
 	return async (context: HttpContext) => {
 		try {
 			const response = await callback(context);

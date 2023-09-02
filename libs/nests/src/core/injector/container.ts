@@ -1,4 +1,4 @@
-import { Injectable, InjectionToken } from "../../domain/provider.ts";
+import { Controller, Injectable, InjectionToken } from "../../domain/provider.ts";
 import { Logger } from "../../utils/logger/logger.service.ts";
 import { AppModule } from "./app-module.ts";
 import { ProviderWrapper } from "./provider-wrapper.ts";
@@ -11,11 +11,15 @@ export class AppContainer {
 		ProviderWrapper<Injectable>
 	>();
 
-    private injectables = new Map<
-        InjectionToken,
-        ProviderWrapper<Injectable>
-    >();
+	private injectables = new Map<
+		InjectionToken,
+		ProviderWrapper<Injectable>
+	>();
 
+	private readonly controllers = new Map<
+		InjectionToken,
+		ProviderWrapper<Controller>
+	>();
 
 	get<T>(token: InjectionToken): T {
 		const provider = this.providers.get(token);
@@ -29,9 +33,13 @@ export class AppContainer {
 		this.providers.set(token, provider);
 	}
 
-    addInjectable(token: InjectionToken, provider: ProviderWrapper) {
-        this.injectables.set(token, provider);
-    }
+	addInjectable(token: InjectionToken, provider: ProviderWrapper) {
+		this.injectables.set(token, provider);
+	}
+
+	addController(token: InjectionToken, provider: ProviderWrapper) {
+		this.controllers.set(token, provider);
+	}
 
 	reset() {
 		this.logger.verbose("resetting app container");
@@ -56,7 +64,11 @@ export class AppContainer {
 		return this.providers;
 	}
 
-    getInjectables(): Map<InjectionToken, ProviderWrapper> {
-        return this.injectables;
-    }
+	getInjectables(): Map<InjectionToken, ProviderWrapper> {
+		return this.injectables;
+	}
+
+	getControllers(): Map<InjectionToken, ProviderWrapper> {
+		return this.controllers;
+	}
 }

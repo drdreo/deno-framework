@@ -12,6 +12,8 @@ export type Provider<T = any> =
 	| ClassProvider<T>
 	| ValueProvider<T>;
 
+export type Controller = Type<object>;
+
 export type Injectable = unknown;
 
 /**

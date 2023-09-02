@@ -14,6 +14,3 @@ export const clc = {
 	cyanBright: colorIfAllowed((text: string) => `\x1B[96m${text}\x1B[39m`),
 	blue: colorIfAllowed((text: string) => `\x1b[38;5;39m${text}\x1B[39m`),
 };
-export const yellow = colorIfAllowed(
-	(text: string) => `\x1B[38;5;3m${text}\x1B[39m`,
-);

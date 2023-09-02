@@ -1,11 +1,11 @@
-import { Application, createApp, Logger } from "@deno-framework/nests";
+import { DestsApplication,  DentsFactory } from "@deno-framework/nests";
+import { AppModule } from "./app.module.ts";
 
 async function bootstrap() {
-    const app: Application = await createApp();
+    const app: DestsApplication = await DentsFactory.create(AppModule);
 
-    const port = 3000;
-    Logger.log(`listening at http://localhost:${ port }`, 'Bootstrap');
-    await app.listen({ port });
+    const port = '3000';
+    await app.listen(port);
 }
 
 bootstrap();

@@ -82,8 +82,6 @@ export class DiscoveryService {
 	}
 
 	private async initializeControllers(app: Application) {
-		const start = Date.now();
-
 		const controllers: any[] = [];
 
 		// TODO: scan all project for controllers

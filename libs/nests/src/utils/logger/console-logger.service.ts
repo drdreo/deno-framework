@@ -2,7 +2,7 @@
 
 import { writeAllSync } from "../../../deps.ts";
 import { getBytesFromString } from "../buffer.ts";
-import { clc, yellow } from "../color.ts";
+import { clc } from "../color.ts";
 import { isFunction, isPlainObject, isString, isUndefined } from "../data.ts";
 import { LoggerService, LogLevel } from "./logger.service.ts";
 import { isLogLevelEnabled } from "./logger.utils.ts";
@@ -203,7 +203,7 @@ export class ConsoleLogger implements LoggerService {
 	}
 
 	protected formatContext(context: string): string {
-		return context ? yellow(`[${context}] `) : "";
+		return context ? clc.yellow(`[${context}] `) : "";
 	}
 
 	protected formatMessage(
@@ -237,7 +237,7 @@ export class ConsoleLogger implements LoggerService {
 
 	protected colorize(message: string, logLevel: LogLevel) {
 		const color = this.getColorByLogLevel(logLevel);
-		return color(message);
+		return color ? color(message) : message;
 	}
 
 	protected printStackTrace(stack?: string) {
@@ -262,7 +262,7 @@ export class ConsoleLogger implements LoggerService {
 	}
 
 	protected formatTimestampDiff(timestampDiff: number) {
-		return yellow(` +${timestampDiff}ms`);
+		return clc.yellow(` +${timestampDiff}ms`);
 	}
 
 	private getContextAndMessagesToPrint(args: unknown[]) {
@@ -330,7 +330,7 @@ export class ConsoleLogger implements LoggerService {
 			case "verbose":
 				return clc.cyanBright;
 			default:
-				return clc.blue;
+				return;
 		}
 	}
 }

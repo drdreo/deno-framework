@@ -1,7 +1,7 @@
 import {
 	ClassProvider,
+	Controller,
 	Injectable,
-	InjectionToken,
 	Provider,
 	ValueProvider,
 } from "../../domain/provider.ts";
@@ -100,22 +100,35 @@ export class AppModule {
 		);
 	}
 
-    public addInjectable(injectable: Provider) {
-        if (this.isCustomProvider(injectable)) {
-            return ;
-        }
+	public addInjectable(injectable: Provider) {
+		if (this.isCustomProvider(injectable)) {
+			return;
+		}
 
-        this.container.addInjectable(
-            injectable,
-            new ProviderWrapper({
-                token: injectable,
-                name: (injectable as Type<Injectable>).name,
-                metatype: injectable as Type<Injectable>,
-                instance: undefined,
-                isResolved: false,
-            }),
-        );
-    }
+		this.container.addInjectable(
+			injectable,
+			new ProviderWrapper({
+				token: injectable,
+				name: (injectable as Type<Injectable>).name,
+				metatype: injectable as Type<Injectable>,
+				instance: undefined,
+				isResolved: false,
+			}),
+		);
+	}
+
+	public addController(controller: Type<Controller>) {
+		this.container.addController(
+			controller,
+			new ProviderWrapper({
+				token: controller,
+				name: controller.name,
+				metatype: controller,
+				instance: undefined,
+				isResolved: false,
+			}),
+		);
+	}
 
 	private generateModuleUuid(): string {
 		const prefix = "M_";
